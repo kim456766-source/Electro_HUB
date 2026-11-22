@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptocurrency Payment - MyEcom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .payment-container {
+            max-width: 600px;
+            margin: 50px auto;
+        }
+        .payment-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .payment-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .payment-header i {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        .payment-header h3 {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .payment-body {
+            padding: 40px;
+            background: white;
+        }
+        .amount-display {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .amount-label {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .amount-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f5576c;
+        }
+        .crypto-address-box {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        .crypto-address {
+            font-family: monospace;
+            font-size: 1.2rem;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            word-break: break-all;
+            border: 1px solid #e0e0e0;
+        }
+        .btn-copy {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .btn-copy:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        .btn-copy.copied {
+            background: #28a745;
+        }
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .qr-code img {
+            width: 200px;
+            height: 200px;
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .instruction-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .step-text {
+            flex: 1;
+        }
+        .crypto-timer {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 10px;
+            color: #856404;
+        }
+        .crypto-timer i {
+            margin-right: 5px;
+        }
+        .timer-value {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .btn-verify {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #666;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            color: #f5576c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                {% if payment_method == 'bitcoin' %}
+                    <i class="fab fa-bitcoin"></i>
+                    <h3>Bitcoin Payment</h3>
+                {% else %}
+                    <i class="fab fa-ethereum"></i>
+                    <h3>Ethereum Payment</h3>
+                {% endif %}
+                <p class="mb-0">Pay with cryptocurrency</p>
+            </div>
+            
+            <div class="payment-body">
+                <!-- Amount Display -->
+                <div class="amount-display">
+                    <div class="amount-label">Total Amount</div>
+                    <div class="amount-value">${{ total|floatformat:2 }}</div>
+                </div>
+                
+                <!-- Crypto Conversion (example rates) -->
+                <div class="text-center mb-4">
+                    {% if payment_method == 'bitcoin' %}
+                        <p class="mb-1">≈ 0.00015 BTC</p>
+                    {% else %}
+                        <p class="mb-1">≈ 0.0025 ETH</p>
+                    {% endif %}
+                    <small class="text-muted">Exchange rate may vary</small>
+                </div>
+                
+                <!-- Timer -->
+                <div class="crypto-timer">
+                    <i class="fas fa-hourglass-half"></i>
+                    Complete payment within <span class="timer-value" id="timer">30:00</span>
+                </div>
+                
+                <!-- QR Code (placeholder) -->
+                <div class="qr-code">
+                    <img src="https://via.placeholder.com/200x200?text=QR+Code" alt="Payment QR Code">
+                </div>
+                
+                <!-- Wallet Address -->
+                <div class="crypto-address-box">
+                    <label class="fw-bold mb-2">Send to this address:</label>
+                    <div class="crypto-address" id="walletAddress">
+                        0x71C7656EC7ab88b098defB751B7401B5f6d8976F
+                    </div>
+                    <button class="btn-copy" onclick="copyAddress()" id="copyButton">
+                        <i class="far fa-copy me-2"></i>Copy Address
+                    </button>
+                </div>
+                
+                <!-- Payment Instructions -->
+                <h6 class="fw-bold mb-3">How to pay:</h6>
+                
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">
+                        <strong>Send the exact amount</strong>
+                        <div class="text-muted small">Send exactly ${{ total|floatformat:2 }} worth of 
+                        {% if payment_method == 'bitcoin' %}Bitcoin{% else %}Ethereum{% endif %}</div>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">
+                        <strong>Copy the wallet address</strong>
+                        <div class="text-muted small">Use the address above or scan QR code</div>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">
+                        <strong>Send from your wallet</strong>
+                        <div class="text-muted small">Use any crypto wallet or exchange</div>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">
+                        <strong>Wait for confirmation</strong>
+                        <div class="text-muted small">Payment will be verified after 3 confirmations</div>
+                    </div>
+                </div>
+                
+                <!-- Transaction Verification -->
+                <form method="post" action="{% url 'orders:process_payment' %}" class="mt-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_method" value="{{ payment_method }}">
+                    <input type="hidden" name="transaction_hash" id="transactionHash">
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Transaction Hash (Optional)</label>
+                        <input type="text" class="form-control" name="transaction_hash" 
+                               placeholder="Paste transaction hash to verify faster">
+                    </div>
+                    
+                    <button type="submit" class="btn-verify" id="verifyButton">
+                        <i class="fas fa-check-circle me-2"></i>I've Sent the Payment
+                    </button>
+                </form>
+                
+                <div class="back-link">
+                    <a href="{% url 'orders:payment_method' %}">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Payment Methods
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timerInterval;
+        let timeLeft = 1800; // 30 minutes in seconds
+        
+        function startTimer() {
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timer').innerHTML = '00:00';
+                    document.getElementById('timer').style.color = '#dc3545';
+                } else {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    document.getElementById('timer').innerHTML = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+        
+        // Copy wallet address
+        function copyAddress() {
+            const address = document.getElementById('walletAddress').innerText;
+            navigator.clipboard.writeText(address).then(function() {
+                const button = document.getElementById('copyButton');
+                button.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(function() {
+                    button.innerHTML = '<i class="far fa-copy me-2"></i>Copy Address';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        // Start timer on page load
+        window.onload = function() {
+            startTimer();
+        };
+        
+        // Loading state on verify
+        document.getElementById('verifyButton').addEventListener('click', function(e) {
+            const button = this;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verifying...';
+            button.disabled = true;
+        });
+    </script>
+</body>
+</html>

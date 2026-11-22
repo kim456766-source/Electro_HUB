@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - MyEcom</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <style>
+        body{
+            background: #f4f6fb;
+        }
+
+        /* NAVBAR */
+        .navbar{
+            background: white !important;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+        }
+
+        .navbar-brand{
+            font-weight: 700;
+            color: #4f46e5 !important;
+            font-size: 1.5rem;
+        }
+
+        /* CART BADGE ANIMATION */
+        .cart-badge {
+            transition: transform 0.3s ease;
+        }
+        
+        .cart-badge.animate {
+            animation: bounce 0.5s ease;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(-2px) translateY(-2px); }
+            75% { transform: translateX(2px) translateY(2px); }
+        }
+
+        /* PAGE TITLE */
+        .page-title{
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        /* CART CARD */
+        .cart-card{
+            background:white;
+            border-radius: 18px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .cart-header{
+            background: #4f46e5;
+            color: white;
+            padding: 18px 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .cart-item{
+            padding: 18px 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item:last-child{
+            border-bottom: none;
+        }
+
+        .product-img{
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #eee;
+        }
+
+        .product-name{
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .product-price{
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        /* Quantity Controls */
+        .qty-box{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .quantity-input{
+            width: 70px;
+            text-align: center;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .btn-update{
+            border-radius: 10px;
+            padding: 7px 12px;
+        }
+
+        /* Remove Button */
+        .btn-remove{
+            border-radius: 10px;
+            padding: 7px 10px;
+        }
+
+        /* TOTAL PRICE */
+        .item-total{
+            font-weight: 700;
+            color: #111;
+        }
+
+        /* SUMMARY */
+        .summary-card{
+            background: white;
+            border-radius: 18px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            padding: 25px;
+        }
+
+        .summary-title{
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .summary-row{
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .summary-row strong{
+            font-size: 1.1rem;
+        }
+
+        .checkout-btn{
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 600;
+            background: #4f46e5;
+            border: none;
+        }
+
+        .checkout-btn:hover{
+            opacity: 0.9;
+        }
+
+        .continue-btn{
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 600;
+        }
+
+        /* EMPTY CART */
+        .empty-cart-box{
+            background: white;
+            padding: 60px 30px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        }
+
+        .empty-cart-box i{
+            font-size: 70px;
+            color: #aaa;
+        }
+
+        .empty-cart-box h3{
+            font-weight: 700;
+            margin-top: 20px;
+        }
+
+        /* NOTIFICATION */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 350px;
+        }
+        
+        .notification {
+            margin-bottom: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            animation: slideInRight 0.5s ease;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* RESPONSIVE */
+        @media(max-width: 768px){
+            .cart-item{
+                text-align: center;
+            }
+            .qty-box{
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation with Dynamic Cart Badge -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'products:home' %}">
+                <i class="fas fa-store me-2"></i>MyEcom
+            </a>
+
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <!-- Dynamic Cart Badge -->
+                        <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-primary position-relative">
+                            <i class="fas fa-shopping-cart cart-icon"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">
+                                {{ cart|length }}
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <div class="container mt-5 mb-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="page-title">Shopping Cart</h2>
+            <span class="text-muted cart-item-count">{{ cart|length }} item(s)</span>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if cart %}
+            <div class="row g-4">
+
+                <!-- CART ITEMS -->
+                <div class="col-lg-8">
+                    <div class="cart-card">
+
+                        <div class="cart-header">
+                            <i class="fas fa-cart-shopping me-2"></i> Your Items
+                        </div>
+
+                        <div class="card-body p-4" id="cart-items-container">
+
+                            {% for item in cart %}
+                            <div class="cart-item" data-product-id="{{ item.product.id }}">
+                                <div class="row align-items-center g-3">
+
+                                    <div class="col-md-2 text-center">
+                                        <img src="{{ item.product.image.url|default:'https://via.placeholder.com/100x100' }}"
+                                             class="product-img"
+                                             alt="{{ item.product.name }}">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <h6 class="product-name">{{ item.product.name }}</h6>
+                                        <p class="product-price mb-0">
+                                            Unit Price: <span class="fw-semibold text-dark">${{ item.price }}</span>
+                                        </p>
+                                        <small class="text-muted">Available: {{ item.product.stock }}</small>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <form class="update-cart-form" data-product-id="{{ item.product.id }}">
+                                            {% csrf_token %}
+                                            <div class="qty-box">
+                                                <input type="number" name="quantity"
+                                                       value="{{ item.quantity }}"
+                                                       min="1" max="{{ item.product.stock }}"
+                                                       class="form-control quantity-input">
+
+                                                <button type="submit" class="btn btn-outline-primary btn-update update-btn">
+                                                    <i class="fas fa-rotate"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <div class="col-md-2 text-center">
+                                        <span class="item-total item-total-{{ item.product.id }}">${{ item.total_price }}</span>
+                                    </div>
+
+                                    <div class="col-md-1 text-center">
+                                        <a href="#" 
+                                           class="btn btn-danger btn-remove remove-item"
+                                           data-product-id="{{ item.product.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUMMARY -->
+                <div class="col-lg-4">
+                    <div class="summary-card">
+                        <h5 class="summary-title mb-3">
+                            <i class="fas fa-receipt me-2 text-primary"></i>Order Summary
+                        </h5>
+
+                        <hr>
+
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span class="fw-semibold cart-subtotal">${{ cart.get_total_price }}</span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Shipping</span>
+                            <span class="fw-semibold text-success">Free</span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Tax</span>
+                            <span class="fw-semibold text-muted">$0</span>
+                        </div>
+
+                        <hr>
+
+                        <div class="summary-row">
+                            <strong>Total</strong>
+                            <strong class="text-primary cart-total">${{ cart.get_total_price }}</strong>
+                        </div>
+
+                        <div class="mt-4">
+
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'orders:checkout' %}" class="btn btn-primary w-100 checkout-btn mb-3">
+                                    <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+                                </a>
+                            {% else %}
+                                <div class="alert alert-info rounded-3">
+                                    Please <a href="{% url 'accounts:login' %}" class="fw-bold">login</a> to checkout.
+                                </div>
+                            {% endif %}
+
+                            <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary w-100 continue-btn">
+                                <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        {% else %}
+            <!-- EMPTY CART -->
+            <div class="empty-cart-box text-center">
+                <i class="fas fa-cart-arrow-down"></i>
+                <h3>Your cart is empty</h3>
+                <p class="text-muted mt-2">
+                    Looks like you haven't added any products yet.
+                </p>
+                <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-lg mt-3 checkout-btn">
+                    <i class="fas fa-bag-shopping me-2"></i>Start Shopping
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Function to update cart badge
+        function updateCartBadge(count) {
+            const cartBadge = document.querySelector('.cart-badge');
+            if (cartBadge) {
+                cartBadge.textContent = count;
+                cartBadge.classList.add('animate');
+                setTimeout(() => {
+                    cartBadge.classList.remove('animate');
+                }, 500);
+            }
+            
+            // Update item count text
+            const itemCountSpan = document.querySelector('.cart-item-count');
+            if (itemCountSpan) {
+                itemCountSpan.textContent = `${count} item(s)`;
+            }
+        }
+        
+        // Function to show notification
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} notification`;
+            notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.5s ease';
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 3000);
+        }
+        
+        // Function to update cart totals
+        function updateCartTotals(cartTotal) {
+            const subtotalElement = document.querySelector('.cart-subtotal');
+            const totalElement = document.querySelector('.cart-total');
+            
+            if (subtotalElement) subtotalElement.textContent = `$${cartTotal}`;
+            if (totalElement) totalElement.textContent = `$${cartTotal}`;
+        }
+        
+        // Function to update item total
+        function updateItemTotal(productId, itemTotal) {
+            const itemTotalElement = document.querySelector(`.item-total-${productId}`);
+            if (itemTotalElement) {
+                itemTotalElement.textContent = `$${itemTotal}`;
+            }
+        }
+        
+        // AJAX function to update cart
+        async function updateCart(productId, quantity, action = 'update') {
+            let url = `/cart/update/${productId}/`;
+            let method = 'POST';
+            let body = new FormData();
+            body.append('quantity', quantity);
+            body.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+            
+            if (action === 'remove') {
+                url = `/cart/remove/${productId}/`;
+                body = new FormData();
+                body.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+            }
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: body,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateCartBadge(data.cart_count);
+                    updateCartTotals(data.cart_total);
+                    
+                    if (action === 'remove') {
+                        // Remove item from DOM
+                        const cartItem = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
+                        if (cartItem) {
+                            cartItem.remove();
+                        }
+                        
+                        // Check if cart is empty
+                        const remainingItems = document.querySelectorAll('.cart-item').length;
+                        if (remainingItems === 0) {
+                            location.reload();
+                        }
+                        
+                        showNotification('Item removed from cart!', 'success');
+                    } else {
+                        updateItemTotal(productId, data.item_total);
+                        showNotification('Cart updated successfully!', 'success');
+                    }
+                } else {
+                    showNotification(data.error || 'Error updating cart', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('An error occurred. Please try again.', 'error');
+            }
+        }
+        
+        // Handle update form submissions
+        document.querySelectorAll('.update-cart-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const productId = form.dataset.productId;
+                const quantityInput = form.querySelector('.quantity-input');
+                const quantity = quantityInput.value;
+                
+                await updateCart(productId, quantity, 'update');
+            });
+        });
+        
+        // Handle remove buttons
+        document.querySelectorAll('.remove-item').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const productId = btn.dataset.productId;
+                if (confirm('Remove this item from cart?')) {
+                    await updateCart(productId, 0, 'remove');
+                }
+            });
+        });
+        
+        // Add to cart from other pages will update badge
+        // Listen for storage events to sync cart across tabs
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'cartUpdated') {
+                location.reload();
+            }
+        });
+    </script>
+</body>
+</html>

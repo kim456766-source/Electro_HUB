@@ -1,0 +1,209 @@
+{% extends 'products/admin/base_admin.html' %}
+{% load static %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted mb-1">Total Revenue</p>
+                    <h3 class="stat-value">${{ total_revenue|floatformat:2 }}</h3>
+                    <small class="text-success"><i class="fas fa-arrow-up"></i> +12.5%</small>
+                </div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted mb-1">Total Orders</p>
+                    <h3 class="stat-value">{{ total_orders }}</h3>
+                    <small class="text-success"><i class="fas fa-arrow-up"></i> +8.2%</small>
+                </div>
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted mb-1">Total Products</p>
+                    <h3 class="stat-value">{{ total_products }}</h3>
+                    <small class="text-success"><i class="fas fa-arrow-up"></i> +5</small>
+                </div>
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="fas fa-box"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted mb-1">Total Users</p>
+                    <h3 class="stat-value">{{ total_users }}</h3>
+                    <small class="text-success"><i class="fas fa-arrow-up"></i> +15</small>
+                </div>
+                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="admin-table p-4">
+            <h5 class="mb-3"><i class="fas fa-chart-line me-2 text-primary"></i>Weekly Sales</h5>
+            <canvas id="salesChart" height="200"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="admin-table p-4">
+            <h5 class="mb-3"><i class="fas fa-chart-pie me-2 text-primary"></i>Order Status</h5>
+            <canvas id="orderStatusChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="admin-table">
+            <div class="p-3 border-bottom bg-light">
+                <h5 class="mb-0"><i class="fas fa-clock me-2 text-primary"></i>Recent Orders</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td><a href="{% url 'orders:order_detail' order.id %}" class="text-decoration-none">#{{ order.order_number|truncatechars:12 }}</a></td>
+                            <td>{{ order.user.username|default:order.email }}</td>
+                            <td>${{ order.total }}</td>
+                            <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                            <td>{{ order.created|date:"M d, Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center py-4">No orders found</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="admin-table">
+            <div class="p-3 border-bottom bg-light">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Low Stock Products</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>Product</th><th>Stock</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for product in low_stock_products %}
+                        <tr>
+                            <td>{{ product.name|truncatechars:30 }}</td>
+                            <td><span class="fw-bold text-danger">{{ product.stock }}</span></td>
+                            <td>{% if product.stock == 0 %}Out of Stock{% else %}Low Stock{% endif %}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center py-4">All products have sufficient stock</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Weekly Sales Chart
+        const salesCanvas = document.getElementById('salesChart');
+        if (salesCanvas) {
+            const salesCtx = salesCanvas.getContext('2d');
+            
+            const weekLabels = [{% for label in week_labels %}'{{ label }}',{% endfor %}];
+            const weekData = [{% for value in week_values %}{{ value }},{% endfor %}];
+            
+            if (weekLabels.length > 0) {
+                new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: weekLabels,
+                        datasets: [{
+                            label: 'Sales ($)',
+                            data: weekData,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true
+                    }
+                });
+            }
+        }
+        
+        // Order Status Chart
+        const statusCanvas = document.getElementById('orderStatusChart');
+        if (statusCanvas) {
+            const statusCtx = statusCanvas.getContext('2d');
+            
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+                    datasets: [{
+                        data: [
+                            {{ pending_orders }},
+                            {{ processing_orders }},
+                            {{ shipped_orders }},
+                            {{ delivered_orders }},
+                            {{ cancelled_orders }}
+                        ],
+                        backgroundColor: ['#ffc107', '#17a2b8', '#6f42c1', '#28a745', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

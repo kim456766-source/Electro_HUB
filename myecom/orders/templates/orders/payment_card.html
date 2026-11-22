@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Payment - MyEcom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .payment-container {
+            max-width: 500px;
+            margin: 50px auto;
+        }
+        .payment-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .payment-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .payment-header i {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        .payment-header h3 {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .payment-body {
+            padding: 40px;
+            background: white;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .input-group {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .input-group:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .input-group-text {
+            background: #f8f9fa;
+            border: none;
+            color: #667eea;
+            font-size: 1.2rem;
+            padding: 12px 15px;
+        }
+        .form-control {
+            border: none;
+            padding: 12px 15px;
+            font-size: 1rem;
+        }
+        .form-control:focus {
+            box-shadow: none;
+        }
+        .row {
+            margin: 0 -5px;
+        }
+        .col-6 {
+            padding: 0 5px;
+        }
+        .amount-display {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .amount-label {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .amount-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .btn-pay {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .card-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .card-icons i {
+            font-size: 2rem;
+        }
+        .fa-cc-visa { color: #1a1f71; }
+        .fa-cc-mastercard { color: #eb001b; }
+        .fa-cc-amex { color: #2e77bb; }
+        .fa-cc-discover { color: #ff6000; }
+        .secure-badge {
+            text-align: center;
+            margin-top: 20px;
+            color: #28a745;
+        }
+        .secure-badge i {
+            margin-right: 5px;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #666;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <i class="fas fa-credit-card"></i>
+                <h3>Card Payment</h3>
+                <p class="mb-0">Pay securely with your card</p>
+            </div>
+            
+            <div class="payment-body">
+                <!-- Card Icons -->
+                <div class="card-icons">
+                    <i class="fab fa-cc-visa fa-2x"></i>
+                    <i class="fab fa-cc-mastercard fa-2x"></i>
+                    <i class="fab fa-cc-amex fa-2x"></i>
+                    <i class="fab fa-cc-discover fa-2x"></i>
+                </div>
+                
+                <!-- Amount Display -->
+                <div class="amount-display">
+                    <div class="amount-label">Total Amount</div>
+                    <div class="amount-value">${{ total|floatformat:2 }}</div>
+                </div>
+                
+                <form method="post" action="{% url 'orders:process_payment' %}" id="paymentForm">
+                    {% csrf_token %}
+                    
+                    <!-- Card Number -->
+                    <div class="form-group">
+                        <label class="form-label">Card Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-credit-card"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="card_number" 
+                                   placeholder="1234 5678 9012 3456"
+                                   maxlength="19"
+                                   id="cardNumber"
+                                   required>
+                            <span class="input-group-text" id="cardType">
+                                <i class="fas fa-credit-card"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Holder -->
+                    <div class="form-group">
+                        <label class="form-label">Card Holder Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="card_holder" 
+                                   placeholder="Name on card"
+                                   required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Expiry Date -->
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-label">Expiry Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-calendar"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           name="expiry" 
+                                           placeholder="MM/YY"
+                                           maxlength="5"
+                                           id="expiry"
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CVV -->
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-label">CVV</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    <input type="password" 
+                                           class="form-control" 
+                                           name="cvv" 
+                                           placeholder="123"
+                                           maxlength="4"
+                                           id="cvv"
+                                           required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="toggleCvv()">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden Fields -->
+                    <input type="hidden" name="payment_method" id="paymentMethod" value="{% if payment_method == 'visa' %}visa{% else %}mastercard{% endif %}">
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-pay" id="payButton">
+                        <i class="fas fa-lock me-2"></i>Pay ${{ total|floatformat:2 }}
+                    </button>
+                </form>
+                
+                <div class="secure-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    256-bit SSL Secure Payment
+                </div>
+                
+                <div class="back-link">
+                    <a href="{% url 'orders:payment_method' %}">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Payment Methods
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Format card number with spaces
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            let value = this.value.replace(/\s/g, '').replace(/[^0-9]/g, '');
+            let formattedValue = '';
+            
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            
+            this.value = formattedValue;
+            
+            // Detect card type
+            const cardTypeIcon = document.querySelector('#cardType i');
+            if (value.startsWith('4')) {
+                cardTypeIcon.className = 'fab fa-cc-visa';
+            } else if (value.startsWith('5')) {
+                cardTypeIcon.className = 'fab fa-cc-mastercard';
+            } else if (value.startsWith('3')) {
+                cardTypeIcon.className = 'fab fa-cc-amex';
+            } else {
+                cardTypeIcon.className = 'fas fa-credit-card';
+            }
+        });
+        
+        // Format expiry date
+        document.getElementById('expiry').addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                this.value = value.slice(0, 2) + '/' + value.slice(2, 4);
+            } else {
+                this.value = value;
+            }
+        });
+        
+        // CVV only numbers
+        document.getElementById('cvv').addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 4);
+        });
+        
+        function toggleCvv() {
+            const cvvInput = document.getElementById('cvv');
+            const button = event.currentTarget;
+            const icon = button.querySelector('i');
+            
+            if (cvvInput.type === 'password') {
+                cvvInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                cvvInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        // Loading state on submit
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            const button = document.getElementById('payButton');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            button.disabled = true;
+        });
+    </script>
+</body>
+</html>

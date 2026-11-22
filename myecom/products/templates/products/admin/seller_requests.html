@@ -1,0 +1,72 @@
+{% extends 'products/admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Seller Requests - MyEcom Admin{% endblock %}
+
+{% block page_title %}Pending Seller Approvals{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Pending Sellers -->
+    <div class="admin-table mb-4">
+        <div class="p-3 border-bottom bg-warning bg-opacity-10">
+            <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Pending Approval ({{ pending_sellers.count }})</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Store/Business</th>
+                        <th>Owner</th>
+                        <th>Contact</th>
+                        <th>Registered</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for seller in pending_sellers %}
+                    <tr>
+                        <td>
+                            <strong>{{ seller.business_name|default:seller.username }}</strong>
+                        </td>
+                        <td>
+                            {{ seller.get_full_name|default:seller.username }}
+                            <br>
+                            <small class="text-muted">{{ seller.username }}</small>
+                        </td>
+                        <td>
+                            <i class="fas fa-envelope me-1"></i> {{ seller.email }}<br>
+                            <i class="fas fa-phone me-1"></i> {{ seller.phone_number|default:"-" }}
+                        </td>
+                        <td>{{ seller.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'products:admin_approve_seller' seller.id %}" 
+                               class="btn btn-sm btn-success"
+                               onclick="return confirm('Approve {{ seller.username }} as a seller?')">
+                                <i class="fas fa-check"></i> Approve
+                            </a>
+                            <a href="{% url 'products:admin_reject_seller' seller.id %}" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Reject {{ seller.username }}\'s application?')">
+                                <i class="fas fa-times"></i> Reject
+                            </a>
+                            <a href="{% url 'products:admin_seller_detail' seller.id %}" 
+                               class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                            <p class="mb-0">No pending seller requests!</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

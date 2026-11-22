@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login History - MyEcom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
+        body {
+            background: #f8fafc;
+        }
+        
+        /* Page Header */
+        .page-header {
+            color: black;
+            padding: 60px 0;
+            margin-bottom: 40px;
+        }
+        
+        /* Login History Card */
+        .history-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        
+        .history-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .history-title i {
+            color: #667eea;
+            margin-right: 10px;
+        }
+        
+        /* Table Styles */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th {
+            text-align: left;
+            padding: 12px 15px;
+            background: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+        }
+        
+        .history-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+        }
+        
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .status-success {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .status-failed {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        
+        /* Sidebar */
+        .sidebar-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 20px;
+        }
+        
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 12px;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #64748b;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            color: #667eea;
+        }
+        
+        .sidebar-menu i {
+            width: 22px;
+        }
+        
+        /* Pagination */
+        .pagination {
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .page-link {
+            border: none;
+            padding: 10px 16px;
+            margin: 0 5px;
+            border-radius: 10px;
+            color: #667eea;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .page-link:hover {
+            background: #667eea ;
+            color: white;
+        }
+        
+        .page-item.active .page-link {
+            background: #667eea ;
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-state i {
+            font-size: 60px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 40px 0;
+            }
+            .history-table th,
+            .history-table td {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    {% include 'includes/navbar.html' %}
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1 class="display-5 fw-bold mb-2">
+                <i class="fas fa-history me-3"></i>Login History
+            </h1>
+            <p class="lead mb-0 opacity-75">View your account login activity and security events</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mb-5">
+        <div class="row g-4">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <div class="sidebar-card">
+                    <h5 class="sidebar-title">
+                        <i class="fas fa-user-circle me-2"></i>My Account
+                    </h5>
+                    <ul class="sidebar-menu">
+                        <li>
+                            <a href="{% url 'accounts:profile' %}">
+                                <i class="fas fa-user"></i> Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'orders:order_history' %}">
+                                <i class="fas fa-box"></i> Orders
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:wishlist' %}">
+                                <i class="fas fa-heart"></i> Wishlist
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:login_history' %}" class="active">
+                                <i class="fas fa-history"></i> Login History
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:settings' %}">
+                                <i class="fas fa-cog"></i> Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Security Tips -->
+                <div class="sidebar-card mt-4">
+                    <h5 class="sidebar-title">
+                        <i class="fas fa-shield-alt me-2"></i>Security Tips
+                    </h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Use a strong unique password
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Never share your login details
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Log out from public computers
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Contact support if you notice suspicious activity
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Login History Content -->
+            <div class="col-lg-9">
+                <div class="history-card">
+                    <h5 class="history-title">
+                        <i class="fas fa-clock"></i> Recent Login Activity
+                    </h5>
+                    
+                    {% if page_obj %}
+                        <div class="table-responsive">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>IP Address</th>
+                                        <th>Device / Browser</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for login in page_obj %}
+                                    <tr>
+                                        <td>{{ login.login_time|date:"M d, Y H:i:s" }}</td>
+                                        <td>
+                                            <code>{{ login.ip_address }}</code>
+                                        </td>
+                                        <td>
+                                            {% if "Chrome" in login.user_agent %}
+                                                <i class="fab fa-chrome text-primary me-1"></i>
+                                            {% elif "Firefox" in login.user_agent %}
+                                                <i class="fab fa-firefox text-warning me-1"></i>
+                                            elif "Edge" in login.user_agent %}
+                                                <i class="fab fa-edge text-primary me-1"></i>
+                                            elif "Safari" in login.user_agent %}
+                                                <i class="fab fa-safari text-info me-1"></i>
+                                            else %}
+                                                <i class="fas fa-globe text-muted me-1"></i>
+                                            {% endif %}
+                                            {{ login.user_agent|truncatechars:40 }}
+                                        </td>
+                                        <td>
+                                            {% if login.login_successful %}
+                                                <span class="status-success">
+                                                    <i class="fas fa-check-circle me-1"></i> Successful
+                                                </span>
+                                            {% else %}
+                                                <span class="status-failed">
+                                                    <i class="fas fa-times-circle me-1"></i> Failed
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                        
+                        <!-- Summary Info -->
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="small text-muted">Total Logins</div>
+                                    <div class="fw-bold">{{ page_obj.paginator.count }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="small text-muted">Successful Logins</div>
+                                    <div class="fw-bold text-success">
+                                        {% with success_count=page_obj.object_list|length %}
+                                            {{ success_count }}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="small text-muted">Last Login</div>
+                                    <div class="fw-bold">
+                                        {% if page_obj.0 %}
+                                            {{ page_obj.0.login_time|timesince }} ago
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    {% else %}
+                        <!-- Empty State -->
+                        <div class="empty-state">
+                            <i class="fas fa-history"></i>
+                            <h5>No Login History Found</h5>
+                            <p class="text-muted">Your login activity will appear here once you log in.</p>
+                            <a href="{% url 'products:home' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-home me-2"></i>Back to Home
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Note -->
+                <div class="alert alert-info small">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> Login history helps you monitor account access. If you see any suspicious activity, please contact our support team immediately.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

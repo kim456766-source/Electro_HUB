@@ -1,0 +1,62 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Pending Seller Approvals</h1>
+    
+    {% if pending_sellers %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Business Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Registered Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for seller in pending_sellers %}
+                <tr>
+                    <td>{{ seller.username }}</td>
+                    <td>{{ seller.business_name }}</td>
+                    <td>{{ seller.email }}</td>
+                    <td>{{ seller.phone_number }}</td>
+                    <td>{{ seller.date_joined|date:"Y-m-d" }}</td>
+                    <td>
+                        <a href="{% url 'admin_approve_seller' seller.id %}" class="btn btn-success btn-sm">Approve</a>
+                        <a href="{% url 'admin_reject_seller' seller.id %}" class="btn btn-danger btn-sm">Reject</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">No pending seller approvals.</div>
+    {% endif %}
+    
+    <h2 class="mt-5">Approved Sellers</h2>
+    {% if approved_sellers %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Business Name</th>
+                    <th>Products Count</th>
+                    <th>Approved Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for seller in approved_sellers %}
+                <tr>
+                    <td>{{ seller.username }}</td>
+                    <td>{{ seller.business_name }}</td>
+                    <td>{{ seller.products.count }}</td>
+                    <td>{{ seller.seller_approved_at|date:"Y-m-d" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,230 @@
+{% extends 'products/admin/base_admin.html' %}
+{% load static %}
+
+{% block page_title %}Add New Category{% endblock %}
+
+{% block extra_css %}
+<style>
+    .image-preview {
+        width: 150px;
+        height: 150px;
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 10px;
+    }
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .image-preview i {
+        font-size: 40px;
+        color: #adb5bd;
+    }
+    .remove-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        display: none;
+    }
+    .image-preview.has-image .remove-image {
+        display: flex;
+    }
+    .image-preview.has-image i {
+        display: none;
+    }
+    .char-count {
+        font-size: 0.75rem;
+        text-align: right;
+        margin-top: 5px;
+        color: #94a3b8;
+    }
+    .char-count.warning {
+        color: #f59e0b;
+    }
+    .char-count.danger {
+        color: #ef4444;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="admin-table">
+            <div class="p-3 border-bottom bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-plus-circle me-2 text-success"></i>Add New Category
+                </h5>
+                <p class="text-muted small mb-0 mt-1">Create a new product category</p>
+            </div>
+            
+            <div class="p-4">
+                <form method="post" enctype="multipart/form-data" id="categoryForm">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Category Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="categoryName" class="form-control" required placeholder="Enter category name">
+                        <div class="char-count" id="nameCount">0 / 100 characters</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Slug</label>
+                        <div class="input-group">
+                            <span class="input-group-text">/category/</span>
+                            <input type="text" name="slug" id="slug" class="form-control" placeholder="auto-generated">
+                        </div>
+                        <small class="text-muted">Leave empty to auto-generate from name (e.g., "Electronics" becomes "electronics")</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" id="description" rows="4" class="form-control" placeholder="Brief description of this category..."></textarea>
+                        <div class="char-count" id="descCount">0 / 500 characters</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Category Image</label>
+                        <div class="image-preview" id="imagePreview" onclick="document.getElementById('imageInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="remove-image" onclick="removeImage()">
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                        <input type="file" name="image" id="imageInput" class="d-none" accept="image/*" onchange="previewImage(this)">
+                        <small class="text-muted">Click to upload category image (optional). Recommended size: 300x300px</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" name="show_in_menu" id="showInMenu" class="form-check-input" checked>
+                            <label class="form-check-label fw-bold" for="showInMenu">
+                                <i class="fas fa-eye me-1"></i> Show in Navigation Menu
+                            </label>
+                        </div>
+                        <small class="text-muted">If unchecked, this category will only be accessible via direct link</small>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'products:admin_categories' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </a>
+                        <button type="submit" name="action" value="save" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Save Category
+                        </button>
+                        <button type="submit" name="action" value="save_and_add" class="btn btn-success">
+                            <i class="fas fa-plus-circle me-1"></i>Save & Add Another
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-generate slug from name
+    document.getElementById('categoryName').addEventListener('input', function() {
+        const name = this.value;
+        const slug = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        const slugInput = document.getElementById('slug');
+        if (!slugInput.value || slugInput.value === '') {
+            slugInput.value = slug;
+        }
+        
+        // Character count
+        document.getElementById('nameCount').textContent = name.length + ' / 100 characters';
+        if (name.length > 100) {
+            document.getElementById('nameCount').classList.add('danger');
+        } else if (name.length > 80) {
+            document.getElementById('nameCount').classList.add('warning');
+        } else {
+            document.getElementById('nameCount').classList.remove('warning', 'danger');
+        }
+    });
+    
+    // Description character count
+    document.getElementById('description').addEventListener('input', function() {
+        const desc = this.value;
+        document.getElementById('descCount').textContent = desc.length + ' / 500 characters';
+        if (desc.length > 500) {
+            document.getElementById('descCount').classList.add('danger');
+        } else if (desc.length > 400) {
+            document.getElementById('descCount').classList.add('warning');
+        } else {
+            document.getElementById('descCount').classList.remove('warning', 'danger');
+        }
+    });
+    
+    // Image preview
+    function previewImage(input) {
+        const preview = document.getElementById('imagePreview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                preview.appendChild(img);
+                
+                const removeBtn = document.createElement('div');
+                removeBtn.className = 'remove-image';
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    removeImage();
+                };
+                preview.appendChild(removeBtn);
+                preview.classList.add('has-image');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    function removeImage() {
+        const preview = document.getElementById('imagePreview');
+        const input = document.getElementById('imageInput');
+        input.value = '';
+        preview.innerHTML = '<i class="fas fa-cloud-upload-alt"></i>';
+        const removeBtn = document.createElement('div');
+        removeBtn.className = 'remove-image';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.onclick = function(e) {
+            e.stopPropagation();
+            removeImage();
+        };
+        preview.appendChild(removeBtn);
+        preview.classList.remove('has-image');
+    }
+    
+    // Form submission loading state
+    document.getElementById('categoryForm').addEventListener('submit', function(e) {
+        const submitBtn = e.submitter;
+        if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Processing...';
+            submitBtn.disabled = true;
+        }
+    });
+</script>
+{% endblock %}

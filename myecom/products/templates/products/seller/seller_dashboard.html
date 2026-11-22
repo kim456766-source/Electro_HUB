@@ -1,0 +1,253 @@
+{% extends 'products/seller/seller_base.html' %}
+{% load static %}
+
+{% block title %}Seller Dashboard - {{ seller.store_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary text-white border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-2">Welcome back, {{ seller.store_name }}!</h2>
+                            <p class="mb-0 opacity-75">
+                                {% if seller.is_verified %}
+                                    <i class="fas fa-check-circle me-1"></i> Verified Seller
+                                {% else %}
+                                    <i class="fas fa-clock me-1"></i> Account pending verification
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            {% if seller.store_logo %}
+                                <img src="{{ seller.store_logo.url }}" alt="{{ seller.store_name }}" style="height: 60px;">
+                            {% else %}
+                                <i class="fas fa-store fa-3x"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Products</h6>
+                            <h3 class="mb-0">{{ total_products }}</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-box fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 small">
+                        <span class="text-success">{{ active_products }} Active</span>
+                        <span class="text-danger ms-2">{{ out_of_stock }} Out of Stock</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Sales</h6>
+                            <h3 class="mb-0">${{ total_sales|floatformat:2 }}</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-chart-line fa-2x text-success"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 small">
+                        <span class="text-muted">{{ total_orders }} Orders Completed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Store Rating</h6>
+                            <h3 class="mb-0">{{ seller.rating|floatformat:1 }}</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-star fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 small">
+                        <span class="text-muted">Based on customer reviews</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Low Stock Alert</h6>
+                            <h3 class="mb-0 text-warning">{{ low_stock }}</h3>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 small">
+                        <a href="{% url 'products:seller_products' %}?status=low_stock" class="text-decoration-none">View products →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="fas fa-bolt me-2 text-primary"></i>Quick Actions</h5>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="{% url 'products:seller_add_product' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add New Product
+                        </a>
+                        <a href="{% url 'products:seller_products' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-box me-2"></i>Manage Products
+                        </a>
+                        <a href="{% url 'products:seller_orders' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-shopping-cart me-2"></i>View Orders
+                        </a>
+                        <a href="{% url 'products:seller_settings' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-cog me-2"></i>Store Settings
+                        </a>
+                        {% comment %} <a href="{% url 'products:seller_store' seller.store_slug %}" target="_blank" class="btn btn-outline-secondary"> {% endcomment %}
+                            <i class="fas fa-eye me-2"></i>View Store
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Products -->
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2 text-primary"></i>Recent Products</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if product.image %}
+                                                <img src="{{ product.image.url }}" width="40" height="40" class="rounded me-2" style="object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-image text-muted"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ product.name|truncatechars:30 }}</strong>
+                                                <div class="small text-muted">{{ product.category.name }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>${{ product.get_price }}</td>
+                                    <td>
+                                        {% if product.stock < 5 %}
+                                            <span class="text-danger fw-bold">{{ product.stock }}</span>
+                                        {% else %}
+                                            {{ product.stock }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if product.available %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'products:seller_edit_product' product.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center py-4">
+                                        <i class="fas fa-box-open fa-3x text-muted mb-2 d-block"></i>
+                                        No products yet. <a href="{% url 'products:seller_add_product' %}">Add your first product</a>
+                                    </td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-shopping-cart me-2 text-primary"></i>Recent Orders</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>#{{ order.order.order_number|truncatechars:10 }}</td>
+                                    <td>${{ order.seller_earning|floatformat:2 }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if order.payment_status == 'completed' %}success{% elif order.payment_status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                            {{ order.get_payment_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ order.created_at|date:"M d" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center py-4">No orders yet</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

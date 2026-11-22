@@ -1,0 +1,222 @@
+{% extends 'products/seller/seller_base.html' %}
+{% load static %}
+
+{% block title %}Store Settings - Seller Dashboard{% endblock %}
+
+{% block page_title %}Store Settings{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Store Information -->
+        <div class="col-md-6 mb-4">
+            <div class="admin-table">
+                <div class="p-3 border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-store me-2"></i>Store Information</h5>
+                </div>
+                <div class="p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Store Name *</label>
+                            <input type="text" name="business_name" class="form-control" value="{{ seller.business_name|default:'' }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Store Description</label>
+                            <textarea name="business_description" class="form-control" rows="4">{{ seller.business_description|default:'' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Store Logo</label>
+                            {% if seller.business_logo %}
+                                <div class="mb-2">
+                                    <img src="{{ seller.business_logo.url }}" width="100" height="100" class="rounded border">
+                                    <br>
+                                    <small class="text-muted">Current logo</small>
+                                </div>
+                            {% endif %}
+                            <input type="file" name="business_logo" class="form-control" accept="image/*">
+                            <small class="text-muted">Leave empty to keep current logo</small>
+                        </div>
+                        
+                        <button type="submit" name="update_store" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Store Info
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="col-md-6 mb-4">
+            <div class="admin-table">
+                <div class="p-3 border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                </div>
+                <div class="p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="full_name" class="form-control" value="{{ seller.get_full_name|default:'' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ seller.email }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" name="phone_number" class="form-control" value="{{ seller.phone_number|default:'' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea name="address" class="form-control" rows="3">{{ seller.address|default:'' }}</textarea>
+                        </div>
+                        
+                        <button type="submit" name="update_profile" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Payment Information -->
+        <div class="col-md-6 mb-4">
+            <div class="admin-table">
+                <div class="p-3 border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Payment Information</h5>
+                </div>
+                <div class="p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <select name="payment_method" class="form-control">
+                                <option value="">Select Payment Method</option>
+                                <option value="mtn_money" {% if profile.payment_method == 'mtn_money' %}selected{% endif %}>MTN Money</option>
+                                <option value="bank_transfer" {% if profile.payment_method == 'bank_transfer' %}selected{% endif %}>Bank Transfer</option>
+                                <option value="paypal" {% if profile.payment_method == 'paypal' %}selected{% endif %}>PayPal</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Payment Account</label>
+                            <input type="text" name="payment_account" class="form-control" value="{{ profile.payment_account|default:'' }}">
+                            <small class="text-muted">Enter your MTN number, bank account, or PayPal email</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">City</label>
+                            <input type="text" name="city" class="form-control" value="{{ profile.city|default:'' }}">
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Commission Rate:</strong> {{ profile.commission_rate|default:"10" }}%
+                        </div>
+                        
+                        <button type="submit" name="update_payment" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Payment Info
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security & Password -->
+        <div class="col-md-6 mb-4">
+            <div class="admin-table">
+                <div class="p-3 border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Security</h5>
+                </div>
+                <div class="p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" name="current_password" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="new_password" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" name="confirm_password" class="form-control" required>
+                        </div>
+                        
+                        <button type="submit" name="change_password" class="btn btn-warning">
+                            <i class="fas fa-key me-2"></i>Change Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Store Statistics -->
+        <div class="col-md-12 mb-4">
+            <div class="admin-table">
+                <div class="p-3 border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Store Statistics</h5>
+                </div>
+                <div class="p-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4>{{ total_products|default:"0" }}</h4>
+                                <p class="text-muted">Total Products</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4>{{ total_sales|default:"0" }}</h4>
+                                <p class="text-muted">Total Sales</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4>${{ total_revenue|default:"0"|floatformat:2 }}</h4>
+                                <p class="text-muted">Total Revenue</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4>{{ seller.date_joined|date:"M d, Y" }}</h4>
+                                <p class="text-muted">Member Since</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

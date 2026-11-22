@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayPal Payment - MyEcom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+
+        body {
+            
+        }
+        .payment-container {
+            max-width: 500px;
+            margin: 50px auto;
+        }
+        
+        .payment-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .payment-header {
+            background: linear-gradient(135deg, #003087 0%, #009cde 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .payment-header i {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        
+        .payment-body {
+            padding: 40px;
+            background: white;
+        }
+        
+        .amount-display {
+            background: #c9ced3;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .amount-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #003087;
+        }
+        
+        .paypal-btn {
+            background: #ffc439;
+            color: #003087;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .paypal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: #ffb300;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-link a {
+            color: #666;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <i class="fab fa-paypal"></i>
+                <h3>PayPal Checkout</h3>
+                <p>Secure payment with PayPal</p>
+            </div>
+            
+            <div class="payment-body">
+                <div class="amount-display">
+                    <h4>Total Amount</h4>
+                    <div class="amount-value">${{ total }}</div>
+                </div>
+                
+                <div class="info-box">
+                    <i class="fas fa-info-circle text-primary"></i>
+                    <strong>How it works:</strong>
+                    <p class="mb-0 mt-1">Click the button below to complete your payment on PayPal's secure website.</p>
+                </div>
+                
+                <!-- PayPal Redirect Form -->
+                <form method="post" action="https://www.sandbox.paypal.com/cgi-bin/webscr" id="paypalForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="cmd" value="_xclick">
+                    <input type="hidden" name="business" value="sb-3tnew36262652@business.example.com">
+                    <input type="hidden" name="item_name" value="MyEcom Order #{{ order_id }}">
+                    <input type="hidden" name="amount" value="{{ total }}">
+                    <input type="hidden" name="currency_code" value="USD">
+                    <input type="hidden" name="return" value="http://127.0.0.1:8000/orders/paypal-return/">
+                    <input type="hidden" name="cancel_return" value="http://127.0.0.1:8000/orders/paypal-cancel/">
+                    <input type="hidden" name="no_shipping" value="1">
+                    <input type="hidden" name="no_note" value="1">
+                    
+                    <button type="submit" class="paypal-btn mt-3" id="paypalBtn">
+                        <i class="fab fa-paypal me-2"></i>Pay with PayPal - ${{ total }}
+                    </button>
+                </form>
+                
+                <div class="back-link mt-3">
+                    <a href="{% url 'orders:payment_method' %}">← Back to Payment Methods</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('paypalForm').addEventListener('submit', function(e) {
+            const btn = document.getElementById('paypalBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Redirecting to PayPal...';
+            btn.disabled = true;
+        });
+    </script>
+</body>
+</html>

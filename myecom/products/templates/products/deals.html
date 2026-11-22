@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Deals - MyEcom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    {% load static %}
+    <style>
+        :root {
+            --sale-color: #ff4757;
+            --sale-gradient: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
+        }
+        
+        body {
+            background: #f8f9fa;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-link:hover {
+            color: #667eea !important;
+        }
+        
+        /* Hero Section with Image Slider */
+        .deals-hero {
+            position: relative;
+            color: white;
+            overflow: hidden;
+            margin-bottom: 40px;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Slider Styles */
+        .hero-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: 1;
+        }
+        
+        .slide.active {
+            opacity: 1;
+            z-index: 2;
+        }
+        
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+        
+        /* Hero Content */
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            color: white;
+            padding: 80px 0;
+        }
+        
+        /* Countdown Timer */
+        .countdown-timer {
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .timer-box {
+            background: white;
+            color: #ff4757;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            min-width: 80px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .timer-number {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .timer-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* Product Card */
+        .deal-card {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            height: 100%;
+            position: relative;
+            background: white;
+        }
+        
+        .deal-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .discount-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 2;
+            background: var(--sale-gradient);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .hot-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .deal-image {
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.5s;
+            width: 100%;
+        }
+        
+        .deal-card:hover .deal-image {
+            transform: scale(1.05);
+        }
+        
+        .original-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .sale-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--sale-color);
+        }
+        
+        .save-amount {
+            background: #ff4757;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .stock-count {
+            color: #28a745;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+        
+        /* Sale Stats */
+        .sale-stats {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--sale-color);
+        }
+        
+        /* Empty State */
+        .empty-deals {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 20px;
+        }
+        
+        .empty-deals i {
+            font-size: 80px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        /* Sidebar */
+        .sidebar-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 20px;
+        }
+        
+        .category-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .category-list li {
+            margin-bottom: 12px;
+        }
+        
+        .category-list a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+        
+        .category-list a:hover {
+            background: var(--sale-gradient);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .category-list .badge {
+            background: #ff4757;
+            color: white;
+        }
+        
+        /* Slider Controls */
+        .slider-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 15;
+        }
+        
+        .slider-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            margin: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .slider-dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+        
+        .slider-dot:hover {
+            background: white;
+        }
+        
+        /* Footer */
+        footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+        
+        footer a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        footer a:hover {
+            color: white;
+        }
+        
+        .active-category {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%) !important;
+            color: white !important;
+        }
+        
+        @media (max-width: 768px) {
+            .timer-number {
+                font-size: 1.2rem;
+            }
+            .timer-box {
+                padding: 8px;
+                min-width: 60px;
+            }
+            .hero-content {
+                padding: 50px 0;
+            }
+            .display-3 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar - Direct Code instead of include -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <!-- Logo/Brand -->
+            <a class="navbar-brand fw-bold fs-3" href="{% url 'products:home' %}">
+                <i class="fas fa-store text-primary"></i> MyEcom
+            </a>
+            
+            <!-- Mobile Toggle Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <!-- Navigation Links -->
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products:home' %}">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products:product_list' %}">
+                            <i class="fas fa-box"></i> Products
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'products:deals' %}">
+                            <i class="fas fa-tags"></i> Today's Deals
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- Right Side Icons -->
+                <div class="d-flex align-items-center">
+                    <!-- User Authentication -->
+                    {% if user.is_authenticated %}
+                        <div class="dropdown me-2">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> {{ user.username }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'orders:order_history' %}">
+                                    <i class="fas fa-box me-2"></i>My Orders
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:wishlist' %}">
+                                    <i class="fas fa-heart me-2"></i>Wishlist
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary me-2">Login</a>
+                        <a href="{% url 'accounts:register' %}" class="btn btn-primary me-2">Register</a>
+                    {% endif %}
+                    
+                    <!-- Shopping Cart -->
+                    <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-primary position-relative">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ cart|length }}
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Electronic Product Image Slider -->
+    <section class="deals-hero">
+        <!-- Slider Images - Electronic Products -->
+        <div class="hero-slider">
+            <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1200');"></div>
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200');"></div>
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200');"></div>
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1585386959984-415d4e72e7e1?w=1200');"></div>
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=1200');"></div>
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=1200');"></div>
+        </div>
+        
+        <!-- Hero Content -->
+        <div class="hero-content container position-relative" style="z-index: 10;">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <div class="animate__animated animate__fadeInLeft">
+                        <h1 class="display-3 fw-bold mb-3">
+                            🔥 Today's Deals 🔥
+                        </h1>
+                        <p class="lead mb-4">Grab these amazing offers before they're gone!</p>
+                        
+                        <!-- Countdown Timer -->
+                        <div class="countdown-timer">
+                            <p class="mb-3 fw-bold">
+                                <i class="fas fa-clock me-2"></i>Sale Ends In:
+                            </p>
+                            <div class="row g-2">
+                                <div class="col-3">
+                                    <div class="timer-box">
+                                        <div class="timer-number" id="hours">00</div>
+                                        <div class="timer-label">Hours</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="timer-box">
+                                        <div class="timer-number" id="minutes">00</div>
+                                        <div class="timer-label">Minutes</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="timer-box">
+                                        <div class="timer-number" id="seconds">00</div>
+                                        <div class="timer-label">Seconds</div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="timer-box">
+                                        <div class="timer-number" id="days">00</div>
+                                        <div class="timer-label">Days</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5 text-center animate__animated animate__fadeInRight">
+                    <i class="fas fa-percent fa-5x mb-3"></i>
+                    <h2 class="display-4 fw-bold">Up to <span id="maxDiscount">{{ max_discount }}</span>% OFF</h2>
+                    <p class="mt-3">on selected items</p>
+                    <div class="mt-4">
+                        <span class="badge bg-light text-dark fs-6 me-2">
+                            <i class="fas fa-tag me-1"></i>{{ total_products_on_sale }} Products
+                        </span>
+                        <span class="badge bg-light text-dark fs-6">
+                            <i class="fas fa-chart-line me-1"></i>Limited Time
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slider Controls -->
+        <div class="slider-controls">
+            <span class="slider-dot active" data-slide="0"></span>
+            <span class="slider-dot" data-slide="1"></span>
+            <span class="slider-dot" data-slide="2"></span>
+            <span class="slider-dot" data-slide="3"></span>
+            <span class="slider-dot" data-slide="4"></span>
+            <span class="slider-dot" data-slide="5"></span>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="sidebar-card">
+                    <h5 class="mb-4">
+                        <i class="fas fa-filter me-2"></i>Filter by Category
+                    </h5>
+                    <ul class="category-list">
+                        <li>
+                            <a href="{% url 'products:deals' %}" class="{% if not request.GET.category %}active-category{% endif %}">
+                                All Deals
+                                <span class="badge">{{ total_products_on_sale }}</span>
+                            </a>
+                        </li>
+                        {% for cat in categories %}
+                        <li>
+                            <a href="?category={{ cat.id }}" class="{% if request.GET.category == cat.id|stringformat:'s' %}active-category{% endif %}">
+                                {{ cat.name }}
+                                <span class="badge">{{ cat.sale_count }}</span>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <hr class="my-4">
+                    
+                    <h5 class="mb-3">
+                        <i class="fas fa-chart-simple me-2"></i>Sale Stats
+                    </h5>
+                    <div class="mb-3">
+                        <small class="text-muted">Max Discount</small>
+                        <h3 class="text-danger">{{ max_discount }}%</h3>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Products on Sale</small>
+                        <h3>{{ total_products_on_sale }}</h3>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Limited Time</small>
+                        <h3><i class="fas fa-hourglass-half text-warning"></i> 24 Hours</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Deals Grid -->
+            <div class="col-lg-9">
+                <!-- Sale Stats Banner -->
+                <div class="sale-stats">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="stat-number">{{ deals_count }}</div>
+                            <div class="text-muted">Products on Sale</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-number">Up to {{ max_discount }}%</div>
+                            <div class="text-muted">Maximum Discount</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-number">24 Hours</div>
+                            <div class="text-muted">Limited Time</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Deals Grid -->
+                {% if deals %}
+                    <div class="row g-4">
+                        {% for product in deals %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="deal-card">
+                                <!-- Badges -->
+                                <div class="discount-badge">
+                                    -{{ product.discount_percentage }}% OFF
+                                </div>
+                                <div class="hot-badge">
+                                    <i class="fas fa-fire"></i> HOT
+                                </div>
+                                
+                                <!-- Product Image -->
+                                <div class="position-relative">
+                                    <a href="{% url 'products:product_detail' slug=product.slug %}">
+                                        <img src="{{ product.image.url|default:'https://via.placeholder.com/300x300' }}" 
+                                             class="deal-image w-100" alt="{{ product.name }}">
+                                    </a>
+                                    <div class="position-absolute bottom-0 start-0 w-100 p-3" 
+                                         style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                                        <a href="{{ product.category.get_absolute_url }}" class="text-white text-decoration-none">
+                                            <small><i class="fas fa-tag me-1"></i>{{ product.category.name }}</small>
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Product Info -->
+                                <div class="p-3">
+                                    <h6 class="card-title mb-2">
+                                       <a href="{% url 'products:product_detail' slug=product.slug %}">
+                                            {{ product.name|truncatechars:40 }}
+                                        </a>
+                                    </h6>
+                                    
+                                    <!-- Price -->
+                                    <div class="mb-2">
+                                        <span class="original-price">${{ product.price }}</span>
+                                        <span class="sale-price">${{ product.sale_price }}</span>
+                                        <span class="save-amount">
+                                            Save ${{ product.price|floatformat:2|add:product.sale_price|floatformat:2 }}
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Stock Status -->
+                                    <div class="stock-count mb-3">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        {% if product.stock > 10 %}
+                                            In Stock ({{ product.stock }} available)
+                                        {% elif product.stock > 0 %}
+                                            Only {{ product.stock }} left!
+                                        {% else %}
+                                            Out of Stock
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Progress Bar for Stock -->
+                                    {% if product.stock < 20 and product.stock > 0 %}
+                                    <div class="progress mb-3" style="height: 5px;">
+                                        <div class="progress-bar bg-danger" style="width: {{ product.stock }}%"></div>
+                                    </div>
+                                    <small class="text-danger">Hurry! Only {{ product.stock }} left in stock</small>
+                                    {% endif %}
+                                    
+                                    <!-- Buttons -->
+                                    <div class="d-grid gap-2">
+                                        <a href="{% url 'products:product_detail' slug=product.slug %}" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-eye me-1"></i>View Deal
+                                        </a>
+                                        {% if product.stock > 0 %}
+                                        <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit" class="btn btn-danger btn-sm w-100">
+                                                <i class="fas fa-cart-plus me-1"></i>Add to Cart - ${{ product.sale_price }}
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <button class="btn btn-secondary btn-sm" disabled>
+                                            <i class="fas fa-times-circle me-1"></i>Out of Stock
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if deals.has_other_pages %}
+                    <nav aria-label="Page navigation" class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            {% if deals.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ deals.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for i in deals.paginator.page_range %}
+                                {% if deals.number == i %}
+                                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                                {% elif i > deals.number|add:'-3' and i < deals.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ i }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">{{ i }}</a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if deals.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ deals.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    
+                {% else %}
+                    <div class="empty-deals">
+                        <i class="fas fa-tags"></i>
+                        <h3>No Deals Available Right Now</h3>
+                        <p class="text-muted">Check back later for amazing discounts!</p>
+                        <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+                            Browse All Products
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5 class="mb-3">MyEcom</h5>
+                    <p class="small text-white-50">Your one-stop shop for amazing products. Quality products delivered to your door.</p>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="mb-3">Quick Links</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="{% url 'products:home' %}">Home</a></li>
+                        <li class="mb-2"><a href="{% url 'products:product_list' %}">All Products</a></li>
+                        <li class="mb-2"><a href="{% url 'products:deals' %}">Today's Deals</a></li>
+                        <li class="mb-2"><a href="{% url 'products:about' %}">About Us</a></li>
+                        <li class="mb-2"><a href="{% url 'products:contact' %}">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="mb-3">Categories</h6>
+                    <ul class="list-unstyled small">
+                        {% for cat in all_categories %}
+                        <li class="mb-2"><a href="{{ cat.get_absolute_url }}" class="text-white-50 text-decoration-none">{{ cat.name }}</a></li>
+                        {% empty %}
+                        <li class="mb-2"><a href="{% url 'products:product_list' %}?category=electronics" class="text-white-50">Electronics</a></li>
+                        <li class="mb-2"><a href="{% url 'products:product_list' %}?category=clothes" class="text-white-50">Clothes</a></li>
+                        <li class="mb-2"><a href="{% url 'products:product_list' %}?category=kitchen" class="text-white-50">Kitchen Tools</a></li>
+                        <li class="mb-2"><a href="{% url 'products:product_list' %}?category=toys" class="text-white-50">Children Toys</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <hr class="bg-white my-3">
+            <div class="text-center">
+                <p class="small mb-0">&copy; 2024 MyEcom. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Image Slider
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.slider-dot');
+        const totalSlides = slides.length;
+        let slideInterval;
+        
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+            currentSlide = index;
+        }
+        
+        function nextSlide() {
+            let next = currentSlide + 1;
+            if (next >= totalSlides) next = 0;
+            showSlide(next);
+        }
+        
+        function startAutoSlide() {
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+        
+        function stopAutoSlide() {
+            clearInterval(slideInterval);
+        }
+        
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                stopAutoSlide();
+                showSlide(index);
+                startAutoSlide();
+            });
+        });
+        
+        startAutoSlide();
+        
+        const heroSection = document.querySelector('.deals-hero');
+        if (heroSection) {
+            heroSection.addEventListener('mouseenter', stopAutoSlide);
+            heroSection.addEventListener('mouseleave', startAutoSlide);
+        }
+        
+        // Countdown Timer
+        function startCountdown() {
+            const endTime = new Date();
+            endTime.setHours(endTime.getHours() + 24);
+            
+            function updateTimer() {
+                const now = new Date();
+                const distance = endTime - now;
+                
+                if (distance < 0) {
+                    document.getElementById('hours').textContent = '00';
+                    document.getElementById('minutes').textContent = '00';
+                    document.getElementById('seconds').textContent = '00';
+                    document.getElementById('days').textContent = '00';
+                    return;
+                }
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+                document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+        
+        document.addEventListener('DOMContentLoaded', startCountdown);
+        
+        // Add to cart animation
+        document.querySelectorAll('form[action*="cart_add"]').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const button = this.querySelector('button[type="submit"]');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Adding...';
+                button.disabled = true;
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-check me-1"></i>Added!';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - Frequently Asked Questions | MyEcom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
+        body {
+            background: #f8fafc;
+        }
+        
+        /* Hero Section */
+        .faq-hero {
+            background: #7f92e8 ;
+            color: white;
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .faq-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+        
+        .faq-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 15s infinite reverse;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(30px, -30px) rotate(10deg); }
+        }
+        
+        /* Search Box */
+        .search-container {
+            max-width: 600px;
+            margin: -30px auto 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 60px;
+            padding: 5px 5px 5px 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-box input {
+            flex: 1;
+            border: none;
+            padding: 15px 0;
+            font-size: 1rem;
+            outline: none;
+            background: transparent;
+        }
+        
+        .search-box button {
+            background:  #7f92e8 ;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .search-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Category Tabs */
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 50px;
+        }
+        
+        .category-tab {
+            padding: 10px 24px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category-tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .category-tab.active {
+            background:  #7f92e8 ;
+            border-color: transparent;
+            color: white;
+        }
+        
+        /* FAQ Accordion */
+        .faq-section {
+            display: none;
+        }
+        
+        .faq-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .accordion-item {
+            border: none;
+            margin-bottom: 16px;
+            border-radius: 16px !important;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .accordion-item:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .accordion-button {
+            padding: 20px 25px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            background: white;
+            color: #1e293b;
+        }
+        
+        .accordion-button:not(.collapsed) {
+            background:  #7f92e8 ;
+            color: white;
+        }
+        
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: transparent;
+        }
+        
+        .accordion-button::after {
+            background-size: 1rem;
+        }
+        
+        .accordion-body {
+            padding: 25px;
+            background: #f8fafc;
+            color: #475569;
+            line-height: 1.7;
+        }
+        
+        /* Contact Card */
+        .contact-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-top: 50px;
+        }
+        
+        .contact-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .contact-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-contact {
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-contact i {
+            margin-right: 8px;
+        }
+        
+        .btn-contact:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+        }
+        
+        .no-results i {
+            font-size: 60px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .faq-hero {
+                padding: 50px 0;
+            }
+            .category-tab {
+                padding: 6px 16px;
+                font-size: 0.85rem;
+            }
+            .accordion-button {
+                padding: 15px 20px;
+                font-size: 0.9rem;
+            }
+            .contact-card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    {% include 'includes/navbar.html' %}
+
+    <!-- Hero Section -->
+    <div class="faq-hero">
+        <div class="container text-center position-relative" style="z-index: 2;">
+            <h1 class="display-4 fw-bold mb-3 animate__animated animate__fadeInDown">
+                Frequently Asked Questions
+            </h1>
+            <p class="lead mb-0 animate__animated animate__fadeInUp">
+                Find answers to common questions about shopping, orders, payments, and more
+            </p>
+        </div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="container search-container">
+        <div class="search-box">
+            <i class="fas fa-search text-muted me-3"></i>
+            <input type="text" id="faqSearch" placeholder="Search for answers...">
+            <button id="clearSearch" style="display: none;">Clear</button>
+        </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="container mt-5">
+        <div class="category-tabs" id="categoryTabs">
+            <div class="category-tab active" data-category="all">All Questions</div>
+            <div class="category-tab" data-category="ordering">Ordering</div>
+            <div class="category-tab" data-category="payment">Payment</div>
+            <div class="category-tab" data-category="shipping">Shipping & Delivery</div>
+            <div class="category-tab" data-category="returns">Returns & Refunds</div>
+            <div class="category-tab" data-category="account">Account</div>
+            <div class="category-tab" data-category="product">Products</div>
+        </div>
+    </div>
+
+    <!-- FAQ Sections -->
+    <div class="container mb-5">
+        <!-- All Questions Section -->
+        <div id="section-all" class="faq-section active">
+            <div class="accordion" id="accordionAll">
+                <!-- Ordering Questions -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAll1">
+                            <i class="fas fa-shopping-cart me-3 text-primary"></i> How do I place an order?
+                        </button>
+                    </h2>
+                    <div id="collapseAll1" class="accordion-collapse collapse show" data-bs-parent="#accordionAll">
+                        <div class="accordion-body">
+                            To place an order, simply browse our products, add items to your cart, proceed to checkout, enter your shipping information, choose a payment method, and confirm your order. You'll receive an email confirmation once your order is placed.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAll2">
+                            <i class="fas fa-clock me-3 text-primary"></i> How long does shipping take?
+                        </button>
+                    </h2>
+                    <div id="collapseAll2" class="accordion-collapse collapse" data-bs-parent="#accordionAll">
+                        <div class="accordion-body">
+                            Standard shipping takes 3-5 business days. Express shipping takes 1-2 business days. Free shipping is available on orders over $50. You'll receive a tracking number once your order ships.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAll3">
+                            <i class="fas fa-credit-card me-3 text-primary"></i> What payment methods do you accept?
+                        </button>
+                    </h2>
+                    <div id="collapseAll3" class="accordion-collapse collapse" data-bs-parent="#accordionAll">
+                        <div class="accordion-body">
+                            We accept Visa, Mastercard, PayPal, MTN Mobile Money, Bitcoin, and Ethereum. All payments are processed securely through encrypted connections.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAll4">
+                            <i class="fas fa-undo-alt me-3 text-primary"></i> What is your return policy?
+                        </button>
+                    </h2>
+                    <div id="collapseAll4" class="accordion-collapse collapse" data-bs-parent="#accordionAll">
+                        <div class="accordion-body">
+                            We offer a 30-day return policy. Items must be unused and in original packaging. To initiate a return, contact our support team with your order number and reason for return.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAll5">
+                            <i class="fas fa-user me-3 text-primary"></i> How do I create an account?
+                        </button>
+                    </h2>
+                    <div id="collapseAll5" class="accordion-collapse collapse" data-bs-parent="#accordionAll">
+                        <div class="accordion-body">
+                            Click the "Register" button in the top right corner, fill in your details, and click "Create Account". You'll receive a verification email to confirm your account.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAll6">
+                            <i class="fas fa-tag me-3 text-primary"></i> Do you offer discounts for bulk orders?
+                        </button>
+                    </h2>
+                    <div id="collapseAll6" class="accordion-collapse collapse" data-bs-parent="#accordionAll">
+                        <div class="accordion-body">
+                            Yes, we offer volume discounts for bulk orders. Please contact our sales team at sales@myecom.com with your requirements for a custom quote.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAll7">
+                            <i class="fas fa-map-marker-alt me-3 text-primary"></i> Do you ship internationally?
+                        </button>
+                    </h2>
+                    <div id="collapseAll7" class="accordion-collapse collapse" data-bs-parent="#accordionAll">
+                        <div class="accordion-body">
+                            Currently, we ship within Rwanda and select East African countries. International shipping to other regions is coming soon!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAll8">
+                            <i class="fas fa-lock me-3 text-primary"></i> Is my payment information secure?
+                        </button>
+                    </h2>
+                    <div id="collapseAll8" class="accordion-collapse collapse" data-bs-parent="#accordionAll">
+                        <div class="accordion-body">
+                            Absolutely! We use SSL encryption and PCI-compliant payment gateways. Your payment information is never stored on our servers.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ordering Section -->
+        <div id="section-ordering" class="faq-section">
+            <div class="accordion" id="accordionOrdering">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder1">
+                            How do I place an order?
+                        </button>
+                    </h2>
+                    <div id="collapseOrder1" class="accordion-collapse collapse show" data-bs-parent="#accordionOrdering">
+                        <div class="accordion-body">
+                            To place an order, browse products, add items to cart, proceed to checkout, enter shipping details, select payment method, and confirm your order. You'll receive an email confirmation.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder2">
+                            Can I modify or cancel my order?
+                        </button>
+                    </h2>
+                    <div id="collapseOrder2" class="accordion-collapse collapse" data-bs-parent="#accordionOrdering">
+                        <div class="accordion-body">
+                            You can cancel or modify your order within 1 hour of placing it. Contact our support team immediately with your order number. Once processed, changes may not be possible.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder3">
+                            How do I track my order?
+                        </button>
+                    </h2>
+                    <div id="collapseOrder3" class="accordion-collapse collapse" data-bs-parent="#accordionOrdering">
+                        <div class="accordion-body">
+                            Once your order ships, you'll receive a tracking number via email. You can also track your order from your account dashboard under "My Orders".
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder4">
+                            What if I receive a damaged item?
+                        </button>
+                    </h2>
+                    <div id="collapseOrder4" class="accordion-collapse collapse" data-bs-parent="#accordionOrdering">
+                        <div class="accordion-body">
+                            If you receive a damaged item, please contact us within 48 hours with photos of the damage. We'll arrange a replacement or refund immediately.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div id="section-payment" class="faq-section">
+            <div class="accordion" id="accordionPayment">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePay1">
+                            What payment methods do you accept?
+                        </button>
+                    </h2>
+                    <div id="collapsePay1" class="accordion-collapse collapse show" data-bs-parent="#accordionPayment">
+                        <div class="accordion-body">
+                            We accept Visa, Mastercard, PayPal, MTN Mobile Money, Bitcoin, and Ethereum. All payments are processed securely.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePay2">
+                            Is it safe to use my credit card?
+                        </button>
+                    </h2>
+                    <div id="collapsePay2" class="accordion-collapse collapse" data-bs-parent="#accordionPayment">
+                        <div class="accordion-body">
+                            Yes! We use industry-standard SSL encryption and PCI-compliant payment processors. Your card information is never stored on our servers.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePay3">
+                            When will I be charged?
+                        </button>
+                    </h2>
+                    <div id="collapsePay3" class="accordion-collapse collapse" data-bs-parent="#accordionPayment">
+                        <div class="accordion-body">
+                            Your payment method is charged immediately when you place your order. You'll receive an invoice via email.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePay4">
+                            Do you offer installment payments?
+                        </button>
+                    </h2>
+                    <div id="collapsePay4" class="accordion-collapse collapse" data-bs-parent="#accordionPayment">
+                        <div class="accordion-body">
+                            Currently, we don't offer installment payments. However, you can use PayPal's "Pay in 4" feature if available in your region.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Section -->
+        <div id="section-shipping" class="faq-section">
+            <div class="accordion" id="accordionShipping">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShip1">
+                            How long does shipping take?
+                        </button>
+                    </h2>
+                    <div id="collapseShip1" class="accordion-collapse collapse show" data-bs-parent="#accordionShipping">
+                        <div class="accordion-body">
+                            Standard shipping: 3-5 business days. Express shipping: 1-2 business days. Free shipping on orders over $50.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShip2">
+                            Do you ship internationally?
+                        </button>
+                    </h2>
+                    <div id="collapseShip2" class="accordion-collapse collapse" data-bs-parent="#accordionShipping">
+                        <div class="accordion-body">
+                            Currently, we ship within Rwanda and select East African countries. International shipping to other regions coming soon!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShip3">
+                            How can I track my order?
+                        </button>
+                    </h2>
+                    <div id="collapseShip3" class="accordion-collapse collapse" data-bs-parent="#accordionShipping">
+                        <div class="accordion-body">
+                            You'll receive a tracking number via email once your order ships. Track it on our website under "Track Order" or directly on the carrier's website.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Returns Section -->
+        <div id="section-returns" class="faq-section">
+            <div class="accordion" id="accordionReturns">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReturn1">
+                            What is your return policy?
+                        </button>
+                    </h2>
+                    <div id="collapseReturn1" class="accordion-collapse collapse show" data-bs-parent="#accordionReturns">
+                        <div class="accordion-body">
+                            We offer a 30-day return policy. Items must be unused, in original packaging, and in resellable condition.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReturn2">
+                            How do I initiate a return?
+                        </button>
+                    </h2>
+                    <div id="collapseReturn2" class="accordion-collapse collapse" data-bs-parent="#accordionReturns">
+                        <div class="accordion-body">
+                            Contact our support team with your order number and reason for return. We'll provide you with return instructions and a shipping label if applicable.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReturn3">
+                            How long do refunds take?
+                        </button>
+                    </h2>
+                    <div id="collapseReturn3" class="accordion-collapse collapse" data-bs-parent="#accordionReturns">
+                        <div class="accordion-body">
+                            Once we receive and inspect your return, refunds are processed within 5-7 business days. The refund will be credited to your original payment method.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Section -->
+        <div id="section-account" class="faq-section">
+            <div class="accordion" id="accordionAccount">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAcc1">
+                            How do I create an account?
+                        </button>
+                    </h2>
+                    <div id="collapseAcc1" class="accordion-collapse collapse show" data-bs-parent="#accordionAccount">
+                        <div class="accordion-body">
+                            Click "Register" in the top right corner, fill in your details, and submit. You'll receive a verification email to activate your account.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAcc2">
+                            I forgot my password. What should I do?
+                        </button>
+                    </h2>
+                    <div id="collapseAcc2" class="accordion-collapse collapse" data-bs-parent="#accordionAccount">
+                        <div class="accordion-body">
+                            Click "Forgot Password" on the login page, enter your email address, and we'll send you a password reset OTP code.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAcc3">
+                            How do I update my profile information?
+                        </button>
+                    </h2>
+                    <div id="collapseAcc3" class="accordion-collapse collapse" data-bs-parent="#accordionAccount">
+                        <div class="accordion-body">
+                            Log in to your account, go to "My Profile", and click "Edit Profile" to update your personal information and preferences.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div id="section-product" class="faq-section">
+            <div class="accordion" id="accordionProduct">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProd1">
+                            Are your products genuine?
+                        </button>
+                    </h2>
+                    <div id="collapseProd1" class="accordion-collapse collapse show" data-bs-parent="#accordionProduct">
+                        <div class="accordion-body">
+                            Yes! All our products are 100% genuine and sourced directly from authorized distributors and manufacturers.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProd2">
+                            Do you offer product warranties?
+                        </button>
+                    </h2>
+                    <div id="collapseProd2" class="accordion-collapse collapse" data-bs-parent="#accordionProduct">
+                        <div class="accordion-body">
+                            Warranty periods vary by product. Please check the product description for specific warranty information. Most electronics come with a 1-year manufacturer warranty.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProd3">
+                            Can I see more product images?
+                        </button>
+                    </h2>
+                    <div id="collapseProd3" class="accordion-collapse collapse" data-bs-parent="#accordionProduct">
+                        <div class="accordion-body">
+                            Yes! Each product page features multiple high-resolution images. You can click on any image to zoom in for detailed views.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="no-results" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h4>No matching questions found</h4>
+            <p class="text-muted">Try different keywords or browse our categories below</p>
+            <button class="btn btn-primary mt-3" onclick="resetSearch()">Browse All FAQs</button>
+        </div>
+    </div>
+
+    <!-- Contact Card -->
+    <div class="container mb-5">
+        <div class="contact-card">
+            <h3><i class="fas fa-headset me-2 text-primary"></i>Still have questions?</h3>
+            <p class="text-muted">Can't find the answer you're looking for? Our support team is here to help!</p>
+            <div class="contact-buttons">
+                <a href="{% url 'products:contact' %}" class="btn btn-primary btn-contact">
+                    <i class="fas fa-envelope"></i> Contact Us
+                </a>
+                <a href="#" class="btn btn-outline-primary btn-contact">
+                    <i class="fas fa-comment"></i> Live Chat
+                </a>
+                <a href="tel:+18001234567" class="btn btn-outline-primary btn-contact">
+                    <i class="fas fa-phone"></i> Call Support
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+   {% include 'includes/footer.html' with categories=categories %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Category Tab Switching
+        const tabs = document.querySelectorAll('.category-tab');
+        const sections = document.querySelectorAll('.faq-section');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const category = this.dataset.category;
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show active section
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(`section-${category}`).classList.add('active');
+                
+                // Reset search
+                document.getElementById('faqSearch').value = '';
+                document.getElementById('clearSearch').style.display = 'none';
+                showAllItems();
+            });
+        });
+        
+        // Search Functionality
+        const searchInput = document.getElementById('faqSearch');
+        const clearBtn = document.getElementById('clearSearch');
+        const noResultsDiv = document.getElementById('noResults');
+        const allSections = document.querySelectorAll('.faq-section');
+        const allAccordionItems = document.querySelectorAll('.accordion-item');
+        
+        function searchFAQs() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            let hasResults = false;
+            
+            if (searchTerm === '') {
+                showAllItems();
+                clearBtn.style.display = 'none';
+                noResultsDiv.style.display = 'none';
+                return;
+            }
+            
+            clearBtn.style.display = 'block';
+            
+            // Show all sections first
+            allSections.forEach(section => {
+                section.classList.add('active');
+            });
+            
+            // Search through all accordion items
+            allAccordionItems.forEach(item => {
+                const question = item.querySelector('.accordion-button').innerText.toLowerCase();
+                const answer = item.querySelector('.accordion-body').innerText.toLowerCase();
+                
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    hasResults = true;
+                    
+                    // Auto-expand the item if it matches search
+                    const collapseElement = item.querySelector('.accordion-collapse');
+                    if (collapseElement && !collapseElement.classList.contains('show')) {
+                        const button = item.querySelector('.accordion-button');
+                        if (button) {
+                            button.click();
+                        }
+                    }
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no results message
+            if (!hasResults) {
+                noResultsDiv.style.display = 'block';
+                allSections.forEach(section => {
+                    section.style.display = 'none';
+                });
+                noResultsDiv.style.display = 'block';
+            } else {
+                noResultsDiv.style.display = 'none';
+                allSections.forEach(section => {
+                    section.style.display = 'block';
+                });
+            }
+        }
+        
+        function showAllItems() {
+            allAccordionItems.forEach(item => {
+                item.style.display = 'block';
+            });
+            allSections.forEach(section => {
+                section.style.display = 'block';
+            });
+            noResultsDiv.style.display = 'none';
+        }
+        
+        function resetSearch() {
+            searchInput.value = '';
+            clearBtn.style.display = 'none';
+            showAllItems();
+            // Reset to All Questions tab
+            document.querySelector('.category-tab[data-category="all"]').click();
+        }
+        
+        // Debounced search
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(searchFAQs, 300);
+        });
+        
+        clearBtn.addEventListener('click', resetSearch);
+    </script>
+</body>
+</html>

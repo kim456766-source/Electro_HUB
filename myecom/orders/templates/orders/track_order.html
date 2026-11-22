@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order #{{ order.order_number }} - MyEcom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .track-header {
+            color: black;
+            padding: 60px 0;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .track-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #b3adad;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 70px;
+            margin-bottom: 40px;
+        }
+        
+        .timeline-icon {
+            position: absolute;
+            left: 15px;
+            top: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        
+        .timeline-icon.completed {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        
+        .timeline-icon.current {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .timeline-icon.pending {
+            background: white;
+            border-color: #ccc;
+            color: #ccc;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+            }
+        }
+        
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 12px;
+        }
+        
+        .timeline-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .order-status-badge {
+            display: inline-block;
+            padding: 8px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-shipped {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .tracking-number {
+            font-family: monospace;
+            font-size: 1.1rem;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 20px;
+            }
+            .timeline-item {
+                padding-left: 55px;
+            }
+            .timeline-icon {
+                left: 8px;
+                width: 28px;
+                height: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    {% include 'includes/navbar.html' %}
+
+    <!-- Track Header -->
+    <div class="track-header">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-map-marker-alt me-3"></i>Track Your Order
+            </h1>
+            <p class="lead mb-0">Order #{{ order.order_number }}</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    <i class="fas fa-info-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <!-- Order Status -->
+                <div class="track-card text-center">
+                    <h5 class="fw-bold mb-3">Current Status</h5>
+                    <div class="order-status-badge status-{{ order.status }}">
+                        <i class="fas fa-circle me-2" style="font-size: 10px;"></i>
+                        {{ order.get_status_display }}
+                    </div>
+                    <p class="text-muted mt-3 mb-0">
+                        {% if order.status == 'pending' %}
+                            Your order has been received and is waiting for processing.
+                        {% elif order.status == 'processing' %}
+                            Your order is being prepared for shipping.
+                        {% elif order.status == 'shipped' %}
+                            Your order has been shipped and is on its way!
+                        {% elif order.status == 'delivered' %}
+                            Your order has been delivered. Enjoy your purchase!
+                        {% elif order.status == 'cancelled' %}
+                            This order has been cancelled.
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <!-- Tracking Timeline -->
+                <div class="track-card">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fas fa-chart-line me-2 text-primary"></i>Order Progress
+                    </h5>
+                    <div class="timeline">
+                        <!-- Order Placed -->
+                        <div class="timeline-item">
+                            <div class="timeline-icon completed">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Order Placed</div>
+                                <div class="timeline-date">{{ order.created|date:"F j, Y \a\t g:i A" }}</div>
+                                <p class="mb-0 text-muted small">Your order has been successfully placed.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Processing -->
+                        <div class="timeline-item">
+                            <div class="timeline-icon {% if order.status != 'pending' %}completed{% elif order.status == 'pending' %}pending{% else %}pending{% endif %}">
+                                {% if order.status != 'pending' %}
+                                    <i class="fas fa-check"></i>
+                                {% else %}
+                                    <i class="fas fa-clock"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Processing</div>
+                                <div class="timeline-date">
+                                    {% if order.status != 'pending' %}
+                                        {{ order.updated|date:"F j, Y \a\t g:i A" }}
+                                    {% else %}
+                                        Pending
+                                    {% endif %}
+                                </div>
+                                <p class="mb-0 text-muted small">
+                                    {% if order.status != 'pending' %}
+                                        Your order is being processed and prepared for shipping.
+                                    {% else %}
+                                        Your order will be processed soon.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Shipped -->
+                        <div class="timeline-item">
+                            <div class="timeline-icon {% if order.status == 'shipped' or order.status == 'delivered' %}completed{% else %}pending{% endif %}">
+                                {% if order.status == 'shipped' or order.status == 'delivered' %}
+                                    <i class="fas fa-check"></i>
+                                {% else %}
+                                    <i class="fas fa-truck"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Shipped</div>
+                                <div class="timeline-date">
+                                    {% if order.status == 'shipped' or order.status == 'delivered' %}
+                                        {{ order.updated|date:"F j, Y \a\t g:i A" }}
+                                    {% else %}
+                                        Not yet shipped
+                                    {% endif %}
+                                </div>
+                                <p class="mb-0 text-muted small">
+                                    {% if order.status == 'shipped' or order.status == 'delivered' %}
+                                        Your order is on its way to your address.
+                                    {% else %}
+                                        We'll notify you when your order is shipped.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Out for Delivery -->
+                        <div class="timeline-item">
+                            <div class="timeline-icon {% if order.status == 'delivered' %}completed{% else %}pending{% endif %}">
+                                {% if order.status == 'delivered' %}
+                                    <i class="fas fa-check"></i>
+                                {% else %}
+                                    <i class="fas fa-home"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Out for Delivery</div>
+                                <div class="timeline-date">
+                                    {% if order.status == 'delivered' %}
+                                        {{ order.updated|date:"F j, Y \a\t g:i A" }}
+                                    {% else %}
+                                        Pending
+                                    {% endif %}
+                                </div>
+                                <p class="mb-0 text-muted small">
+                                    {% if order.status == 'delivered' %}
+                                        Your order has been delivered!
+                                    {% elif order.status == 'shipped' %}
+                                        Your order is on its way to your local delivery center.
+                                    {% else %}
+                                        Your order will be out for delivery soon.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estimated Delivery -->
+                <div class="track-card text-center">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-calendar-alt me-2 text-primary"></i>Estimated Delivery
+                    </h5>
+                    <div class="display-6 fw-bold text-primary">
+                      {{ estimated_delivery|date:"F j, Y" }}
+                    </div>
+                    <p class="text-muted mt-2 mb-0">Standard delivery: 5-7 business days</p>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="track-card">
+                    <div class="d-flex gap-3 justify-content-center">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-info-circle me-2"></i>View Order Details
+                        </a>
+                        <a href="{% url 'orders:order_history' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Orders
+                        </a>
+                        {% if order.status == 'pending' %}
+                        <a href="{% url 'orders:cancel_order' order.id %}" class="btn btn-outline-danger">
+                            <i class="fas fa-times-circle me-2"></i>Cancel Order
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+    <script>
+        // Auto-refresh tracking page every 30 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>
